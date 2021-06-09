@@ -128,8 +128,13 @@ class CSVDownloader:
 
         for num, table in enumerate(all_data_tables):
             # Storing the data into Pandas DataFrame
-            data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
-
+            try:
+                data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
+            except ValueError:
+                extras = [i for i in range(len(all_headers[num]),len(table[0]))]
+                all_headers[num].extend(extras)
+                data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
+	
             # Converting Pandas DataFrame
             # into CSV file
             data_frame.to_csv('Downloads/Data' + str(num) + '.csv')
