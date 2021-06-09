@@ -4,14 +4,14 @@ import pandas
 from bs4 import BeautifulSoup
 import requests
 import json
-
+import getpass
 
 def authenticate_user(username: str, password: str) -> str:
     """Authentication module to obtain the API token for the current user. This will be used to download
     the data.
     Args:
         username: Elab journal Username
-        password: Elab jounral Password
+        password: Elab journal Password
     Returns:
          API token string
     """
@@ -26,7 +26,7 @@ def authenticate_user(username: str, password: str) -> str:
         except json.decoder.JSONDecodeError:
             print("Login failed. Try again.")
             username = input("Please enter your username: ")
-            password = input("Please enter your password: ")
+            password = getpass.getpass("Please enter your password: ")
 
 
 def get_section_by_link(api_token: str, section_link: str) -> dict:
@@ -144,7 +144,7 @@ class CSVDownloader:
 
 if __name__ == "__main__":
     API_TOKEN = authenticate_user(input("Please enter your username: "),
-                                  input("Please enter your password: "))
+                                  getpass.getpass("Please enter your password: "))
 
     response = get_section_by_link(API_TOKEN, input(
         "Please paste the link you received via email into this terminal: "))
