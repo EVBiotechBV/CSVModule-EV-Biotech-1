@@ -131,7 +131,7 @@ class CSVDownloader:
             try:
                 data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
             except ValueError:
-                extras = [i for i in range(len(all_headers[num]),len(table[0]))]
+                extras = ["" for i in range(len(all_headers[num]),len(table[0]))]
                 all_headers[num].extend(extras)
                 data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
 	
