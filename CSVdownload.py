@@ -6,6 +6,7 @@ import requests
 import json
 import getpass
 
+
 def authenticate_user(username: str, password: str) -> str:
     """Authentication module to obtain the API token for the current user. This will be used to download
     the data.
@@ -33,7 +34,8 @@ def get_section_by_link(api_token: str, section_link: str) -> dict:
     """Retrieves the content of an experiment section by it's GET request link
     Args:
         api_token: The API access token key used to authenticates the api request
-        section_link: The GET Request of the section that that is being scraped (This will be received by users via the email module)
+        section_link: The GET Request of the section that that is being scraped
+        (This will be received by users via the email module)
 
     Returns:
         The content of an experiment section
@@ -70,10 +72,9 @@ class CSVDownloader:
             list containing headers for the tables to be downloaded and converted to pandas
         """
         # Attempts to find column names for the table in contents, exits the function if none are found
-        headers_unformatted = []
         try:
-            for i in range(len(self.soup.find_all("table"))):
-                headers_unformatted.append(self.soup.find_all("table")[i].find("tr"))
+            entries = self.soup.find_all("table")
+            headers_unformatted = [elem.find("tr") for elem in entries]
         except IndexError:
             return None
 
@@ -97,9 +98,8 @@ class CSVDownloader:
         """
 
         # For getting the data of the table
-        data_tables_unformatted = []
-        for i in range(len(self.soup.find_all("table"))):
-            data_tables_unformatted.append(self.soup.find_all("table")[i].find_all("tr")[1:])
+        entries = self.soup.find_all("table")
+        data_tables_unformatted = [elem.find_all("tr")[1:] for elem in entries]
 
         all_data_tables = []
 
@@ -131,10 +131,11 @@ class CSVDownloader:
             try:
                 data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
             except ValueError:
-                extras = ["" for i in range(len(all_headers[num]),len(table[0]))]
+                extras = ["" for i in range(len(all_headers[num]),
+                                            max([len(i) for i in table]))]
                 all_headers[num].extend(extras)
                 data_frame = pandas.DataFrame(data=table, columns=all_headers[num])
-	
+
             # Converting Pandas DataFrame
             # into CSV file
             data_frame.to_csv('Downloads/Data' + str(num) + '.csv')
@@ -144,7 +145,7 @@ class CSVDownloader:
 
 if __name__ == "__main__":
     API_TOKEN = authenticate_user(input("Please enter your username: "),
-                                  getpass.getpass("Please enter your password: "))
+                                  getpass.getpass(prompt="Please enter your password: "))
 
     response = get_section_by_link(API_TOKEN, input(
         "Please paste the link you received via email into this terminal: "))
